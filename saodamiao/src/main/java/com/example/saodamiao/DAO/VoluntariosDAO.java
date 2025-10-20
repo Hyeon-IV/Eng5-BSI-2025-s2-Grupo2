@@ -10,8 +10,9 @@ public class VoluntariosDAO implements IDAO<Voluntarios> {
     public boolean gravar(Voluntarios entidade) {
         return false;
     }
+
     @Override
-    public boolean alterar(Voluntarios entidade) {
+    public boolean alterar(Voluntarios entidade, int id) {
         return false;
     }
     @Override

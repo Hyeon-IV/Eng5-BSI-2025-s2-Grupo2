@@ -3,40 +3,52 @@
     import com.example.saodamiao.DAO.CaixaDAO;
     import com.example.saodamiao.Model.CaixaModel;
     import com.example.saodamiao.Model.Voluntarios;
+    import com.example.saodamiao.DTO.CaixaDTO;
 
-    import java.time.LocalDateTime;
 
     public class CaixaControl {
 
-        private CaixaDAO dao;
+        private final CaixaDAO dao;
 
-        public CaixaControl() {
-            dao = new CaixaDAO();
+        public CaixaControl(CaixaDAO dao) {
+            this.dao = dao;
         }
 
-        public int abrirCaixa (Voluntarios voluntario, double valorAbertura) {
-            if (voluntario != null || voluntario.getIdvoluntario() != 0) {
+        public CaixaDTO abrirCaixa (Voluntarios voluntario, double valorAbertura) {
+            if (voluntario != null && voluntario.getIdvoluntario() != 0) {
                 if (!dao.caixaAberto()) {
                     CaixaModel caixaAbertura = CaixaModel.criarAbertura(voluntario.getIdvoluntario(), valorAbertura);
-                    return dao.abrirCaixaBanco(caixaAbertura);
+                    int resultado = dao.abrirCaixaBanco(caixaAbertura);
+                    if (resultado == 1) {
+                        CaixaModel ultimo = dao.buscarUltimoCaixa();
+                        return new CaixaDTO(ultimo, 1, "Caixa aberto com sucesso!");
+                    } else {
+                        return new CaixaDTO(-1, "Erro ao abrir o caixa.");
+                    }
                 }
                 else
-                    return -2; //Caixa já aberto
+                    return new CaixaDTO(-2, "Já existe um caixa aberto.");
             }
             else
-                return -3; //Ninguem logado
+                return new CaixaDTO(-3, "Nenhum voluntário logado.");
         }
 
-        public int fecharCaixa (Voluntarios voluntario, double valorFechamento) {
-            if (voluntario != null || voluntario.getIdvoluntario() != 0) {
+        public CaixaDTO fecharCaixa (Voluntarios voluntario, double valorFechamento) {
+            if (voluntario != null && voluntario.getIdvoluntario() != 0) {
                 if (dao.caixaAberto()) {
                     CaixaModel caixaFechamento = CaixaModel.criarFechamento(voluntario.getIdvoluntario(), valorFechamento);
-                    return dao.fecharCaixaBanco(caixaFechamento);
+                    int resultado = dao.fecharCaixaBanco(caixaFechamento);
+                    if (resultado == 1) {
+                        CaixaModel ultimo = dao.buscarUltimoCaixa();
+                        return new CaixaDTO(ultimo, 1, "Caixa fechado com sucesso!");
+                    } else {
+                        return new CaixaDTO(-1, "Erro ao fechar o caixa.");
+                    }
                 }
                 else
-                    return -2; //Nennhum caixa aberto
+                    return new CaixaDTO(-2, "Nenhum caixa aberto.");
             }
             else
-                return -3; //Ninguem logado
+                return new CaixaDTO(-3, "Nenhum voluntário logado.");
         }
     }

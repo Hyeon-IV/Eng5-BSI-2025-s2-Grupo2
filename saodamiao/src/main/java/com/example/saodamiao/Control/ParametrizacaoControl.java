@@ -7,10 +7,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-
-
-
 @RestController
 @RequestMapping(value = "/Parametrizacao")
 @CrossOrigin(origins = "*")
@@ -20,9 +16,10 @@ public class ParametrizacaoControl {
     ResponseEntity<Object> getAll(){
 
         Parametrizacao parametrizacao = new Parametrizacao();
-        List<Parametrizacao> list = parametrizacao.getParametrizacaoDAO().pegarListaToda();
 
-        if(!list.isEmpty()){
+        Parametrizacao list = parametrizacao.getParametrizacaoDAO().pegarParametro();
+
+        if(list != null){
             return ResponseEntity.ok().body(list);
         }
         return ResponseEntity.notFound().build();

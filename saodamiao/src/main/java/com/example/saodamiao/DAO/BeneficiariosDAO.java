@@ -11,7 +11,7 @@ public class BeneficiariosDAO implements IDAO<Beneficiarios> {
         return false;
     }
     @Override
-    public boolean alterar(Beneficiarios beneficiarios) {
+    public boolean alterar(Beneficiarios beneficiarios, int id) {
         return false;
     }
     @Override

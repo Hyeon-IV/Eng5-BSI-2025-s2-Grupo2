@@ -12,7 +12,7 @@ public class Singleton {
 
         if(conexao == null){
             conexao = new Conexao();
-            conexao.conectar("jdbc:postgresql://localhost/", "Eng","postgres","postgres123");
+            conexao.conectar("jdbc:postgresql://localhost/", "saodamiao","postgres","postgres123");
         }
         return conexao;
     }

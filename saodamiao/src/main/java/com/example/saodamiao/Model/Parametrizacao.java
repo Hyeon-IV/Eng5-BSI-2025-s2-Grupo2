@@ -4,7 +4,7 @@ import com.example.saodamiao.DAO.ParametrizacaoDAO;
 
 public class Parametrizacao {
 
-    private int par_cnpj;
+    private String par_cnpj;
     private String par_razao_social;
     private String par_nome_fantasia;
     private String par_site;
@@ -24,7 +24,7 @@ public class Parametrizacao {
     public Parametrizacao(){
         this.parametrizacaoDAO = new ParametrizacaoDAO();
     }
-    public Parametrizacao(int par_cnpj, String par_razao_social, String par_nome_fantasia, String par_site, String par_email, String par_telefone, String par_contato, String par_rua, String par_bairro, String par_cidade, String par_uf, String par_cep, String par_logo_grande, String par_logo_pequeno) {
+    public Parametrizacao(String par_cnpj, String par_razao_social, String par_nome_fantasia, String par_site, String par_email, String par_telefone, String par_contato, String par_rua, String par_bairro, String par_cidade, String par_uf, String par_cep, String par_logo_grande, String par_logo_pequeno) {
         this.par_cnpj = par_cnpj;
         this.par_razao_social = par_razao_social;
         this.par_nome_fantasia = par_nome_fantasia;
@@ -50,11 +50,11 @@ public class Parametrizacao {
     public void setParametrizacaoDAO(ParametrizacaoDAO parametrizacaoDAO) {
         this.parametrizacaoDAO = parametrizacaoDAO;
     }
-    public int getPar_cnpj() {
+    public String getPar_cnpj() {
         return par_cnpj;
     }
 
-    public void setPar_cnpj(int par_cnpj) {
+    public void setPar_cnpj(String par_cnpj) {
         this.par_cnpj = par_cnpj;
     }
     public String getPar_razao_social() { return par_razao_social; }

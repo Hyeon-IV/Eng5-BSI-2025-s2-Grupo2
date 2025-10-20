@@ -13,11 +13,12 @@ public class ParametrizacaoDAO implements IDAO<Parametrizacao>{
     public String att ;
 
     public ParametrizacaoDAO(){
+
         this.att = "";
     }
     @Override
     public boolean gravar(Parametrizacao entidade) {
-        String Par = "SELECT * FROM parametrizacao WHERE idParametrizacao = "+entidade.getPar_cnpj();
+        String Par = "SELECT * FROM parametrizacao WHERE par_razao_social = "+entidade.getPar_razao_social();
         ResultSet rs = Singleton.Retorna().consultar(Par);
         try{
             if(rs.next() || !rs.next()){
@@ -49,7 +50,7 @@ public class ParametrizacaoDAO implements IDAO<Parametrizacao>{
             return Singleton.Retorna().manipular(sql);
     }
     @Override
-    public boolean alterar(Parametrizacao entidade) {
+    public boolean alterar(Parametrizacao entidade, int id) {
         return false;
     }
     @Override
@@ -65,7 +66,7 @@ public class ParametrizacaoDAO implements IDAO<Parametrizacao>{
         try{
             while(rs.next())
             {
-                Parametrizacao P = new Parametrizacao(rs.getInt("par_cnpj"),
+                Parametrizacao P = new Parametrizacao(rs.getString("par_cnpj"),
                         rs.getString("par_razao_social"),
                         rs.getString("par_nome_fantasia"),
                         rs.getString("par_site"),
@@ -86,5 +87,35 @@ public class ParametrizacaoDAO implements IDAO<Parametrizacao>{
             throw new RuntimeException(e);
         }
         return lista;
+    }
+
+    public Parametrizacao pegarParametro() {
+
+        Parametrizacao par = new Parametrizacao();
+        String sql = "SELECT * FROM parametrizacao where par_cnpj = '1'";
+        ResultSet rs = Singleton.Retorna().consultar(sql);
+        try{
+            if(rs.next())
+            {
+                par = new Parametrizacao(rs.getString("par_cnpj"),
+                        rs.getString("par_razao_social"),
+                        rs.getString("par_nome_fantasia"),
+                        rs.getString("par_site"),
+                        rs.getString("par_email"),
+                        rs.getString("par_telefone"),
+                        rs.getString("par_contato"),
+                        rs.getString("par_rua"),
+                        rs.getString("par_bairro"),
+                        rs.getString("par_cidade"),
+                        rs.getString("par_uf"),
+                        rs.getString("par_cep"),
+                        rs.getString("par_logo_grande"),
+                        rs.getString("par_logo_pequeno"));
+            }
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return par;
     }
 }

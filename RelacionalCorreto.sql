@@ -78,7 +78,7 @@ create table cliente (
 );
 
 create table tipo_alimento (
-  tpa_id int not null,
+  tpa_id int DEFAULT nextval('seq_tipo_alimento'),
   tpa_desc varchar(20) not null,
   primary key (tpa_id)
 );
@@ -206,6 +206,7 @@ create table alimentos (
   nome varchar(45) not null,
   tipo_alimento_tpa_id int not null,
   primary key (idalimentos),
+  CONSTRAINT uk_alimentos_nome UNIQUE (nome),
   constraint fk_alimentos_tipo_alimento1
     foreign key (tipo_alimento_tpa_id)
     references tipo_alimento (tpa_id)

@@ -1,13 +1,9 @@
 package com.example.saodamiao.Model;
 
-import com.example.saodamiao.Control.CaixaControl;
-import com.example.saodamiao.DAO.CaixaDAO;
-
-import java.time.LocalDateTime;
 import java.util.Date;
 
-
 public class CaixaModel {
+
     private int idCaixa;
     private Date dataAbertura;
     private Double valorAbertura;
@@ -16,15 +12,7 @@ public class CaixaModel {
     private Double valorFechamento;
     private int loginFechamento;
 
-    public CaixaModel(int idCaixa, Date dataAbertura, Double valorAbertura, int loginAbertura, Date dataFechamento, Double valorFechamento, int loginFechamento) {
-        this.idCaixa = idCaixa;
-        this.dataAbertura = dataAbertura;
-        this.valorAbertura = valorAbertura;
-        this.loginAbertura = loginAbertura;
-        this.dataFechamento = dataFechamento;
-        this.valorFechamento = valorFechamento;
-        this.loginFechamento = loginFechamento;
-    }
+    public CaixaModel() {}
 
     public static CaixaModel criarAbertura(int idVoluntario, double valorAbertura) {
         CaixaModel caixa = new CaixaModel();
@@ -42,11 +30,7 @@ public class CaixaModel {
         return caixa;
     }
 
-    public CaixaModel() {}
-
-    public CaixaModel(int anInt) {
-    }
-
+    // Getters e Setters
     public int getIdCaixa() {
         return idCaixa;
     }
@@ -114,15 +98,5 @@ public class CaixaModel {
                 ", valorFechamento=" + valorFechamento +
                 ", loginFechamento=" + loginFechamento +
                 '}';
-    }
-
-    public boolean abrirCaixa(Voluntarios voluntario, double valorAbertura) {
-        CaixaControl control = new CaixaControl();
-        return control.abrirCaixa(voluntario, valorAbertura) == 1;
-    }
-
-    public boolean fecharCaixa(Voluntarios voluntario, double valorFechamento) {
-        CaixaControl control = new CaixaControl();
-        return control.fecharCaixa(voluntario, valorFechamento) == 1;
     }
 }
