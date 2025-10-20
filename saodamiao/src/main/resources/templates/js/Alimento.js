@@ -1,3 +1,4 @@
+
 document.addEventListener('DOMContentLoaded', () => {
     const link = document.getElementById('cadastro-alimento');
     const view = document.getElementById('app-content');
