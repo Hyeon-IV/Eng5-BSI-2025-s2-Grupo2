@@ -202,7 +202,7 @@ create table agendamento_entrega (
 );
 
 create table alimentos (
-  idalimentos int not null,
+  idalimentos int NOT NULL DEFAULT nextval('seq_alimentos'),
   nome varchar(45) not null,
   tipo_alimento_tpa_id int not null,
   primary key (idalimentos),

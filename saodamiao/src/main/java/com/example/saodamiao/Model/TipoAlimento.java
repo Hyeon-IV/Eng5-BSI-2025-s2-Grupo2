@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
+@Getter
 @Setter
 public class TipoAlimento {
     private long id;
@@ -18,14 +19,5 @@ public class TipoAlimento {
     }
     public TipoAlimento(){
         this.tipoAlimentoDAO = new TipoAlimentoDAO();
-    }
-    public String getNome() {
-        return nome;
-    }
-    public long getId() {
-        return id;
-    }
-    public TipoAlimentoDAO getTipoAlimentoDAO() {
-        return tipoAlimentoDAO;
     }
 }

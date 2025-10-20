@@ -9,12 +9,12 @@ public class Singleton {
     // obs: cada um tem seu banco atençao para conectar
 
     public static Conexao Retorna(){
-
         if(conexao == null){
             conexao = new Conexao();
-            conexao.conectar("jdbc:postgresql://localhost/", "saodamiao","postgres","postgres123");
+            conexao.conectar("jdbc:postgresql://localhost/", "saodamiao","postgres","postgres123");;
         }
         return conexao;
     }
+
 
 }

@@ -40,6 +40,12 @@ public class CaixaDAO {
         }
     }
 
+    public CaixaDAO(){
+        con = new Conexao();
+        // Ajuste os parâmetros conforme o seu ambiente:
+        con.conectar("jdbc:postgresql://localhost/", "bazar", "postgres", "1234");
+    }
+
     public int fecharCaixaBanco(CaixaModel caixa) {
         String sql = "UPDATE caixa SET datafechamento = NOW(), " +
                 "valorfechamento = " + caixa.getValorFechamento() + ", " +
@@ -54,25 +60,31 @@ public class CaixaDAO {
     }
 
     public CaixaModel buscarUltimoCaixa() {
-        String sql = "SELECT * FROM caixa ORDER BY idcaixa DESC LIMIT 1";
-        try {
-            ResultSet rs = con.consultar(sql);
-            if (rs.next()) {
-                CaixaModel caixa = new CaixaModel();
-                caixa.setIdCaixa(rs.getInt("idcaixa"));
-                caixa.setValorAbertura(rs.getDouble("valorabertura"));
-                caixa.setValorFechamento(rs.getDouble("valorfechamento"));
-                caixa.setLoginAbertura(rs.getInt("loginabertura"));
-                caixa.setLoginFechamento(rs.getInt("loginfechamento"));
-                caixa.setDataAbertura(rs.getTimestamp("dataabertura"));
-                caixa.setDataFechamento(rs.getTimestamp("datafechamento"));
-                return caixa;
-            } else {
+            String sql = "SELECT * FROM caixa ORDER BY idcaixa DESC LIMIT 1";
+            try {
+                ResultSet rs = con.consultar(sql);
+                if (rs.next()) {
+                    CaixaModel caixa = new CaixaModel();
+                    caixa.setIdCaixa(rs.getInt("idcaixa"));
+                    caixa.setValorAbertura(rs.getDouble("valorabertura"));
+                    caixa.setValorFechamento(rs.getDouble("valorfechamento"));
+                    caixa.setLoginAbertura(rs.getInt("loginabertura"));
+                    caixa.setLoginFechamento(rs.getInt("loginfechamento"));
+                    caixa.setDataAbertura(rs.getTimestamp("dataabertura"));
+                    caixa.setDataFechamento(rs.getTimestamp("datafechamento"));
+                    return caixa;
+                } else {
+                    return null;
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
                 return null;
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return null;
         }
+
+    public boolean atualizarValorCaixa(double novoValor, int idCaixa) {
+        String sql = "UPDATE caixa SET valorfechamento = " + novoValor + " WHERE idcaixa = " + idCaixa;
+        return con.manipular(sql);
     }
 }
+

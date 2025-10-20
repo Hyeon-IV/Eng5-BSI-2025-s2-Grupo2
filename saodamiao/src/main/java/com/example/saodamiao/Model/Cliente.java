@@ -1,23 +1,30 @@
 package com.example.saodamiao.Model;
 
+import com.example.saodamiao.DAO.ClienteDAO;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
 import java.util.InputMismatchException;
 @Data
 public class Cliente {
+    private int id;
     private String nome;
     private String cpf;
     private String telefone;
     private String email;
+    @JsonIgnore
+    private ClienteDAO clienteDAO;
 
-    public Cliente(String nome, String cpf, String telefone, String email) {
+    public Cliente(String nome, String cpf, String telefone, String email, int id) {
         this.nome = nome;
         this.cpf = cpf;
         this.telefone = telefone;
         this.email = email;
+        this.id = id;
+        clienteDAO = new ClienteDAO();
     }
     public Cliente(){
-
+        clienteDAO = new ClienteDAO();
     }
     //Antes de inserir o Objeto no banco, verificar se o CPF é valido.
     public boolean isCPF(String CPF) {

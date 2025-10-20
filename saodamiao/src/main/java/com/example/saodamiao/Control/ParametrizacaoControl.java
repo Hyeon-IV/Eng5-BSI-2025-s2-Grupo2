@@ -1,11 +1,12 @@
 package com.example.saodamiao.Control;
 
+import com.example.saodamiao.DTO.ParametrizacaoDTO;
+import com.example.saodamiao.DTO.ParametrizacaoFormDTO;
 import com.example.saodamiao.Model.Parametrizacao;
+import com.example.saodamiao.Singleton.Erro;
+import com.example.saodamiao.Singleton.Singleton;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(value = "/Parametrizacao")
@@ -13,15 +14,36 @@ import org.springframework.web.bind.annotation.RestController;
 public class ParametrizacaoControl {
 
     @GetMapping(value = "/home")
-    ResponseEntity<Object> getAll(){
+    ResponseEntity<Object> buscarParametrizacao(){
 
-        Parametrizacao parametrizacao = new Parametrizacao();
+        Parametrizacao par = new Parametrizacao();
+        Parametrizacao parametrizacao = par.getParametrizacaoDAO().pegarParametro(Singleton.Retorna());
 
-        Parametrizacao list = parametrizacao.getParametrizacaoDAO().pegarParametro();
-
-        if(list != null){
-            return ResponseEntity.ok().body(list);
+        if(parametrizacao != null)
+        {   ParametrizacaoDTO  parametrizacaoDTO = new ParametrizacaoDTO(parametrizacao);
+            return ResponseEntity.ok(parametrizacaoDTO);
         }
-        return ResponseEntity.notFound().build();
+        else
+        {
+            return ResponseEntity.badRequest().body(new Erro("nenhuma empresa cadastrada"));
+        }
+    }
+
+    @PostMapping(value = "/inserir")
+    ResponseEntity<Object> InserirParametrizacao(@RequestBody ParametrizacaoFormDTO parametrizacaoFormDTO){
+
+        Parametrizacao par = new Parametrizacao();
+        Parametrizacao parametrizacao1 = parametrizacaoFormDTO.toParametrizacao();
+        if(!Singleton.Retorna().StartTransaction())
+        {
+            return ResponseEntity.status(500).body(new Erro(Singleton.Retorna().getMensagemErro()));
+        }
+        if(!par.getParametrizacaoDAO().gravar(parametrizacao1,Singleton.Retorna()))
+        {
+            Singleton.Retorna().Rollback(); // apenas para finalizar a transação
+            return ResponseEntity.badRequest().body(new Erro("Problema ao gravar no banco de dados"));
+        }
+        Singleton.Retorna().Commit();
+        return ResponseEntity.ok(parametrizacaoFormDTO);
     }
 }

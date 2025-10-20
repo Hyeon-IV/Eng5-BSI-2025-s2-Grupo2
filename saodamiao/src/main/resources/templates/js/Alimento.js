@@ -1,4 +1,3 @@
-
 document.addEventListener('DOMContentLoaded', () => {
     const link = document.getElementById('cadastro-alimento');
     const view = document.getElementById('app-content');
@@ -64,6 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
 
+
     };
     
     
@@ -98,21 +98,20 @@ document.addEventListener('DOMContentLoaded', () => {
                     body: JSON.stringify(retorno)
                 })
 
-                if (!resp.ok) throw new Error(await resp.text());
+                if (!resp.ok) {
+                    const msg = await resp.text(); // lê uma vez só
+                    throw new Error(msg);
+                }
 
-                form.insertAdjacentHTML(
-                    'beforeend',
-                    `<div class="alert alert-success mt-3">Salvo com sucesso!</div>`
-                );
+
+                swal('Sucesso!', 'Alimento cadastrado com sucesso', 'success');
 
                 form.reset();
                 form.classList.remove('was-validated');
 
             }catch (err) {
-                form.insertAdjacentHTML(
-                    'beforeend',
-                    `<div class="alert alert-danger mt-3">Erro ao salvar: ${err.message || 'Falha na requisição'}</div>`
-                );
+                const msg = err instanceof Error ? err.message : String(err);
+                swal('Erro!', `Alimento não foi cadastrado: ${msg}`, 'error');
             }
         })
 

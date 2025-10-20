@@ -1,31 +1,15 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
-    <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <title>Kaiadmin - Bootstrap 5 Admin Dashboard</title>
     <meta content="width=device-width, initial-scale=1.0, shrink-to-fit=no" name="viewport" />
     <link rel="icon" href="../img/favicon.ico" type="image/x-icon" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 
     <script src="../js/Parametrizacao.js"> </script>
 
-    <!-- Fonts and icons -->
-    <script src="../js/plugin/webfont/webfont.min.js"></script>
-    <script>
-        WebFont.load({
-            google: { families: ["Public Sans:300,400,500,600,700"] },
-            custom: {
-                families: [
-                    "Font Awesome 5 Solid",
-                    "Font Awesome 5 Regular",
-                    "Font Awesome 5 Brands",
-                    "simple-line-icons",
-                ],
-                urls: ["../css/fonts.min.css"],
-            },
-            active: function () { sessionStorage.fonts = true; },
-        });
-    </script>
+    <script src="../Styles/router.js"> </script>
 
     <!-- Font Awesome -->
     <link rel="stylesheet"
@@ -220,6 +204,11 @@
                         <div class="collapse" id="cestas-basicas">
                             <ul class="nav nav-collapse">
                                 <li>
+                                    <a href="inspecao_alimento/index.html">
+                                        <i class="fas fa-shopping-basket"></i><span class="sub-item">Possiveis Cestas</span>
+                                    </a>
+                                </li>
+                                <li>
                                     <a data-bs-toggle="collapse" href="#cestas-tipos">
                                         <i class="fas fa-layer-group me-2"></i><span class="sub-item">Tipos de Cesta</span>
                                         <span class="caret"></span>
@@ -255,9 +244,7 @@
                                     <div class="collapse" id="cestas-alimentos">
                                         <ul class="nav nav-collapse subnav">
                                             <li><a id="cadastro-alimento" href="#"><span class="sub-item">Cadastrar</span></a></li>
-                                            <li><a href="alimentos/list.html"><span class="sub-item">Listar / Consultar</span></a></li>
-                                            <li><a href="alimentos/edit.html"><span class="sub-item">Editar</span></a></li>
-                                            <li><a href="alimentos/delete.html"><span class="sub-item">Excluir</span></a></li>
+                                            <li><a id ="consultar-alimento" href="#"><span class="sub-item">Listar / Consultar</span></a></li>
                                         </ul>
                                     </div>
                                 </li>
@@ -321,11 +308,10 @@
                                             <!-- ESTE LINK DISPARA A INJEÇÃO PELO Clientes.js -->
                                             <li><a href="#" onclick="return BazarClientes.mount();"><span class="sub-item">Cadastrar</span></a></li>
                                             <li><a href="clientes_bazar/list.html"><span class="sub-item">Listar / Consultar</span></a></li>
-                                            <li><a href="clientes_bazar/edit.html"><span class="sub-item">Editar</span></a></li>
-                                            <li><a href="clientes_bazar/delete.html"><span class="sub-item">Excluir</span></a></li>
                                         </ul>
                                     </div>
                                 </li>
+
 
                                 <li>
                                     <a data-bs-toggle="collapse" href="#bazar-tipo">
@@ -340,6 +326,11 @@
                                             <li><a href="bazar/tipo/delete.html"><span class="sub-item">Excluir</span></a></li>
                                         </ul>
                                     </div>
+                                </li>
+                                <li>
+                                    <a href="inspecao_alimento/index.html">
+                                        <i class="fas fa-search-plus me-2"></i><span class="sub-item">Inspeções de Bazar</span>
+                                    </a>
                                 </li>
                             </ul>
                         </div>
@@ -429,6 +420,7 @@
         <main id="app-content" class="container-fluid my-4">
             <div class="text-muted">Selecione uma opção no menu.</div>
         </main>
+
         <footer class="footer">
             <div class="container-fluid d-flex justify-content-between">
                 <nav class="pull-left">
@@ -462,6 +454,6 @@
 <!-- Seu JS externo que injeta o formulário -->
     <script src="../js/Clientes.js" defer></script>
     <script defer src="../js/Alimento.js" ></script>
-
+    <script defer src="../js/AlimentoConsulta.js" ></script>
 </body>
 </html>

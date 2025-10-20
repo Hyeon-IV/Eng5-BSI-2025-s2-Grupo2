@@ -30,7 +30,6 @@ public class CaixaModel {
         return caixa;
     }
 
-    // Getters e Setters
     public int getIdCaixa() {
         return idCaixa;
     }
