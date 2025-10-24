@@ -5,86 +5,145 @@ import com.example.saodamiao.Singleton.Conexao;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
-public class CaixaDAO {
+public class CaixaDAO implements IDAO<CaixaModel> {
 
-    private final Conexao con;
+    private Conexao con;
 
-    public CaixaDAO(Conexao conexao) {
-        this.con = conexao;
+    @Override
+    public boolean gravar(CaixaModel entidade, Conexao conexao) {
+        String sql = """
+                INSERT INTO caixa (data_abertura, valor_abertura, login_abertura)
+                VALUES (NOW(), #1, #2)
+                """;
+        sql = sql.replace("#1", String.valueOf(entidade.getValorAbertura()));
+        sql = sql.replace("#2", String.valueOf(entidade.getLoginAbertura()));
+        return conexao.manipular(sql);
     }
 
-    public boolean caixaAberto() {
-        String sql = "SELECT idcaixa FROM caixa WHERE datafechamento IS NULL";
+    @Override
+    public boolean alterar(CaixaModel entidade, int id, Conexao conexao) {
+        String sql = """
+                UPDATE caixa 
+                SET valor_fechamento = #1,
+                    login_fechamento = #2,
+                    data_fechamento = NOW()
+                WHERE idcaixa = #3
+                """;
+        sql = sql.replace("#1", String.valueOf(entidade.getValorFechamento()));
+        sql = sql.replace("#2", String.valueOf(entidade.getLoginFechamento()));
+        sql = sql.replace("#3", String.valueOf(id));
+        return conexao.manipular(sql);
+    }
+
+    @Override
+    public boolean apagar(CaixaModel entidade, Conexao conexao) {
+        String sql = "DELETE FROM caixa WHERE idcaixa = #1";
+        sql = sql.replace("#1", String.valueOf(entidade.getIdCaixa()));
+        return conexao.manipular(sql);
+    }
+
+    @Override
+    public List<CaixaModel> pegarListaToda(Conexao conexao) {
+        List<CaixaModel> caixas = new ArrayList<>();
+        String sql = "SELECT * FROM caixa ORDER BY idcaixa DESC";
+        ResultSet rs = conexao.consultar(sql);
+
         try {
-            ResultSet rs = con.consultar(sql);
-            if (rs.next()) {
-                return true;
-            } else {
-                return false;
+            while (rs.next()) {
+                CaixaModel caixa = new CaixaModel(
+                        rs.getInt("idcaixa"),
+                        rs.getTimestamp("data_abertura"),
+                        rs.getDouble("valor_abertura"),
+                        rs.getInt("login_abertura"),
+                        rs.getTimestamp("data_fechamento"),
+                        rs.getDouble("valor_fechamento"),
+                        rs.getInt("login_fechamento")
+                );
+                caixas.add(caixa);
             }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return caixas;
+    }
+
+    // Métodos específicos do CaixaDAO
+    public boolean caixaAberto(Conexao conexao) {
+        String sql = "SELECT idcaixa FROM caixa WHERE data_fechamento IS NULL";
+        try {
+            ResultSet rs = conexao.consultar(sql);
+            return rs.next();
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
         }
     }
 
-    public int abrirCaixaBanco(CaixaModel caixa) {
-        String sql = "INSERT INTO caixa (dataabertura, valorabertura, loginabertura) " +
-                "VALUES (NOW(), " + caixa.getValorAbertura() + ", " + caixa.getLoginAbertura() + ")";
-
-        if (con.manipular(sql)) {
+    public int abrirCaixaBanco(CaixaModel caixa, Conexao conexao) {
+        if (gravar(caixa, conexao)) {
             return 1; // Sucesso
         } else {
             return -1; // Erro
         }
     }
 
-    public CaixaDAO(){
-        con = new Conexao();
-        // Ajuste os parâmetros conforme o seu ambiente:
-        con.conectar("jdbc:postgresql://localhost/", "bazar", "postgres", "1234");
-    }
-
-    public int fecharCaixaBanco(CaixaModel caixa) {
-        String sql = "UPDATE caixa SET datafechamento = NOW(), " +
-                "valorfechamento = " + caixa.getValorFechamento() + ", " +
-                "loginfechamento = " + caixa.getLoginFechamento() + " " +
-                "WHERE datafechamento IS NULL";
-
-        if (con.manipular(sql)) {
+    public int fecharCaixaBanco(CaixaModel caixa, int idCaixa, Conexao conexao) {
+        if (alterar(caixa, idCaixa, conexao)) {
             return 1; // Sucesso
         } else {
             return -1; // Erro
         }
     }
 
-    public CaixaModel buscarUltimoCaixa() {
-            String sql = "SELECT * FROM caixa ORDER BY idcaixa DESC LIMIT 1";
-            try {
-                ResultSet rs = con.consultar(sql);
-                if (rs.next()) {
-                    CaixaModel caixa = new CaixaModel();
-                    caixa.setIdCaixa(rs.getInt("idcaixa"));
-                    caixa.setValorAbertura(rs.getDouble("valorabertura"));
-                    caixa.setValorFechamento(rs.getDouble("valorfechamento"));
-                    caixa.setLoginAbertura(rs.getInt("loginabertura"));
-                    caixa.setLoginFechamento(rs.getInt("loginfechamento"));
-                    caixa.setDataAbertura(rs.getTimestamp("dataabertura"));
-                    caixa.setDataFechamento(rs.getTimestamp("datafechamento"));
-                    return caixa;
-                } else {
-                    return null;
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-                return null;
+    public CaixaModel buscarUltimoCaixa(Conexao conexao) {
+        String sql = "SELECT * FROM caixa ORDER BY idcaixa DESC LIMIT 1";
+        try {
+            ResultSet rs = conexao.consultar(sql);
+            if (rs.next()) {
+                return new CaixaModel(
+                        rs.getInt("idcaixa"),
+                        rs.getTimestamp("data_abertura"),
+                        rs.getDouble("valor_abertura"),
+                        rs.getInt("login_abertura"),
+                        rs.getTimestamp("data_fechamento"),
+                        rs.getDouble("valor_fechamento"),
+                        rs.getInt("login_fechamento")
+                );
             }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
+        return null;
+    }
 
-    public boolean atualizarValorCaixa(double novoValor, int idCaixa) {
-        String sql = "UPDATE caixa SET valorfechamento = " + novoValor + " WHERE idcaixa = " + idCaixa;
-        return con.manipular(sql);
+    public boolean atualizarValorCaixa(double novoValor, int idCaixa, Conexao conexao) {
+        String sql = "UPDATE caixa SET valor_fechamento = #1 WHERE idcaixa = #2";
+        sql = sql.replace("#1", String.valueOf(novoValor));
+        sql = sql.replace("#2", String.valueOf(idCaixa));
+        return conexao.manipular(sql);
+    }
+
+    public CaixaModel buscarCaixaAberto(Conexao conexao) {
+        String sql = "SELECT * FROM caixa WHERE data_fechamento IS NULL";
+        try {
+            ResultSet rs = conexao.consultar(sql);
+            if (rs.next()) {
+                return new CaixaModel(
+                        rs.getInt("idcaixa"),
+                        rs.getTimestamp("data_abertura"),
+                        rs.getDouble("valor_abertura"),
+                        rs.getInt("login_abertura"),
+                        rs.getTimestamp("data_fechamento"),
+                        rs.getDouble("valor_fechamento"),
+                        rs.getInt("login_fechamento")
+                );
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }
-

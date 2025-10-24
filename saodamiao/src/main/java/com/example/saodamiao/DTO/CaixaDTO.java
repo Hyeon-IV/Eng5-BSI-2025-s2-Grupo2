@@ -13,6 +13,10 @@ public class CaixaDTO {
     private String dataAbertura;
     private String dataFechamento;
 
+    // CONSTRUTOR PADRÃO VAZIO (OBRIGATÓRIO para o Jackson)
+    public CaixaDTO() {
+    }
+
     public CaixaDTO(int codigo, String mensagem) {
         this.codigo = codigo;
         this.mensagem = mensagem;
@@ -52,31 +56,60 @@ public class CaixaDTO {
         }
     }
 
+    // GETTERS E SETTERS PARA TODOS OS CAMPOS
     public int getCodigo() {
         return codigo;
+    }
+
+    public void setCodigo(int codigo) {
+        this.codigo = codigo;
     }
 
     public String getMensagem() {
         return mensagem;
     }
 
+    public void setMensagem(String mensagem) {
+        this.mensagem = mensagem;
+    }
+
     public int getIdCaixa() {
         return idCaixa;
+    }
+
+    public void setIdCaixa(int idCaixa) {
+        this.idCaixa = idCaixa;
     }
 
     public double getValorAbertura() {
         return valorAbertura;
     }
 
+    public void setValorAbertura(double valorAbertura) {
+        this.valorAbertura = valorAbertura;
+    }
+
     public double getValorFechamento() {
         return valorFechamento;
+    }
+
+    public void setValorFechamento(double valorFechamento) {
+        this.valorFechamento = valorFechamento;
     }
 
     public String getDataAbertura() {
         return dataAbertura;
     }
 
+    public void setDataAbertura(String dataAbertura) {
+        this.dataAbertura = dataAbertura;
+    }
+
     public String getDataFechamento() {
         return dataFechamento;
+    }
+
+    public void setDataFechamento(String dataFechamento) {
+        this.dataFechamento = dataFechamento;
     }
 }

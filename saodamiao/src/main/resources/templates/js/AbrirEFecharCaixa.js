@@ -1,361 +1,267 @@
 /**
- * Sistema de Gerenciamento de Caixa
+ * Sistema Completo de Gerenciamento de Caixa
  * Controla a abertura e fechamento do caixa do bazar
- * @version 1.0
+ * @version 3.0 - REST API
  * @author Seu Nome
  */
 
 class CaixaManager {
-    constructor() {
-        this.baseURL = 'http://localhost:8080/saodamiao';
+    constructor(modo = 'abertura') {
+        this.baseURL = 'http://localhost:8080/api/caixa';
         this.caixaAberto = null;
+        this.ultimoCaixa = null;
         this.voluntarioLogado = null;
-        this.ultimoFechamento = null;
+        this.modo = modo; // 'abertura' ou 'fechamento'
         this.init();
     }
 
     async init() {
-        try {
-            await this.carregarUsuarioLogado();
-            await this.verificarStatusCaixa();
-            await this.buscarUltimoFechamento();
-            this.configurarEventListeners();
-            this.configurarMascaras();
-        } catch (error) {
-            console.error('Erro na inicialização do CaixaManager:', error);
-            this.mostrarNotificacao('Erro ao inicializar sistema de caixa', 'danger');
+        console.log('Inicializando CaixaManager no modo:', this.modo);
+
+        await this.carregarUsuarioLogado();
+        await this.verificarStatusCaixa();
+
+        if (this.modo === 'abertura') {
+            await this.buscarUltimoCaixa();
+            this.configurarEventListenersAbertura();
         }
+
+        this.iniciarAtualizacaoHora();
+        console.log('CaixaManager inicializado com sucesso');
     }
 
-    /**
-     * Carrega dados do voluntário logado
-     */
+    // ========== MÉTODOS COMPARTILHADOS ==========
+
     async carregarUsuarioLogado() {
         try {
-            // Simulação - substitua pela sua lógica de autenticação
+            // Simulando usuário logado - ajuste conforme sua autenticação
             this.voluntarioLogado = {
                 idvoluntario: 1,
-                nome: "Administrador",
-                email: "admin@ong.com"
+                nome: "Administrador"
             };
-
-            // Atualizar interface com nome do usuário
-            const userElement = document.querySelector('.profile-username .fw-bold');
-            if (userElement) {
-                userElement.textContent = this.voluntarioLogado.nome;
-            }
+            console.log('Usuário logado:', this.voluntarioLogado);
         } catch (error) {
             console.error('Erro ao carregar usuário:', error);
-            throw new Error('Não foi possível carregar dados do usuário');
         }
     }
 
-    /**
-     * Verifica status atual do caixa
-     */
     async verificarStatusCaixa() {
         try {
-            const response = await fetch(`${this.baseURL}/caixa/status`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': this.getAuthToken()
-                }
-            });
-
+            console.log('Verificando status do caixa...');
+            const response = await fetch(`${this.baseURL}/status`);
             if (response.ok) {
-                const data = await response.json();
-                this.caixaAberto = data.caixaAberto;
+                const caixaAberto = await response.json();
+                this.caixaAberto = caixaAberto;
+                console.log('Status do caixa:', this.caixaAberto);
+                this.atualizarInterfaceStatus();
             } else {
-                // Fallback: verificar via último caixa
-                await this.verificarStatusViaUltimoCaixa();
+                console.warn('Não foi possível verificar status do caixa');
+                this.caixaAberto = false;
             }
         } catch (error) {
-            console.warn('Erro na verificação de status, usando fallback:', error);
-            await this.verificarStatusViaUltimoCaixa();
-        } finally {
-            this.atualizarInterfaceStatus();
+            console.error('Erro ao verificar status:', error);
+            this.caixaAberto = false;
+            this.mostrarNotificacao('Erro ao verificar status do caixa', 'danger');
         }
     }
 
-    /**
-     * Verificação alternativa de status
-     */
-    async verificarStatusViaUltimoCaixa() {
+    async buscarUltimoCaixa() {
         try {
-            const response = await fetch(`${this.baseURL}/caixa/ultimo`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': this.getAuthToken()
-                }
-            });
-
+            console.log('Buscando último caixa...');
+            const response = await fetch(`${this.baseURL}/ultimo`);
             if (response.ok) {
                 const data = await response.json();
-                this.caixaAberto = data && !data.dataFechamento ? data : null;
+                this.ultimoCaixa = data;
+                console.log('Último caixa:', this.ultimoCaixa);
+                this.atualizarInterfaceUltimoCaixa();
             }
         } catch (error) {
-            console.error('Erro na verificação alternativa:', error);
-            this.caixaAberto = null;
+            console.error('Erro ao buscar último caixa:', error);
         }
     }
 
-    /**
-     * Abre um novo caixa
-     */
-    async abrirCaixa(valorAbertura, observacao = '') {
-        this.mostrarLoading(true);
+    // ========== MÉTODOS DE VALIDAÇÃO VISUAL ==========
 
+    mostrarErroCampo(campoId, mensagem) {
+        const campo = document.getElementById(campoId);
+        const erroDiv = document.getElementById('erro' + this.capitalizeFirst(campoId));
+
+        if (campo) {
+            campo.classList.add('is-invalid');
+            campo.classList.remove('is-valid');
+        }
+
+        if (erroDiv) {
+            erroDiv.textContent = mensagem;
+            erroDiv.style.display = 'block';
+        }
+    }
+
+    limparErroCampo(campoId) {
+        const campo = document.getElementById(campoId);
+        const erroDiv = document.getElementById('erro' + this.capitalizeFirst(campoId));
+
+        if (campo) {
+            campo.classList.remove('is-invalid');
+            campo.classList.remove('is-valid');
+        }
+
+        if (erroDiv) {
+            erroDiv.style.display = 'none';
+        }
+    }
+
+    mostrarMensagem(containerId, mensagem, tipo) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+
+        let classe = 'alert alert-danger';
+        let icone = 'fas fa-exclamation-circle';
+
+        if (tipo === 'success') {
+            classe = 'alert alert-success';
+            icone = 'fas fa-check-circle';
+        } else if (tipo === 'warning') {
+            classe = 'alert alert-warning';
+            icone = 'fas fa-exclamation-triangle';
+        }
+
+        container.innerHTML = `
+            <div class="${classe} alert-dismissible fade show">
+                <i class="${icone} me-2"></i>${mensagem}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        `;
+        container.style.display = 'block';
+
+        // Auto-remover após 5 segundos (exceto sucesso)
+        if (tipo !== 'success') {
+            setTimeout(() => {
+                container.style.display = 'none';
+            }, 5000);
+        }
+    }
+
+    limparMensagens(containerId) {
+        const container = document.getElementById(containerId);
+        if (container) {
+            container.style.display = 'none';
+            container.innerHTML = '';
+        }
+    }
+
+    // Método utilitário
+    capitalizeFirst(string) {
+        return string.charAt(0).toUpperCase() + string.slice(1);
+    }
+
+    // ========== MÉTODOS DE ABERTURA ==========
+
+    async abrirCaixa(valorAbertura, observacao) {
         try {
             if (!this.voluntarioLogado) {
                 throw new Error('Nenhum voluntário logado');
             }
 
+            // Preparar dados para o REST
             const caixaData = {
-                voluntario: this.voluntarioLogado,
-                valorAbertura: parseFloat(valorAbertura),
-                observacao: observacao
+                codigo: this.voluntarioLogado.idvoluntario, // ID do voluntário
+                valorAbertura: parseFloat(valorAbertura)
             };
 
-            const response = await fetch(`${this.baseURL}/caixa/abrir`, {
+            // Adicionar observação apenas se existir
+            if (observacao && observacao.trim() !== '') {
+                caixaData.mensagem = observacao;
+            }
+
+            console.log('Enviando dados para abertura:', caixaData);
+
+            const response = await fetch(`${this.baseURL}/abrir`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': this.getAuthToken()
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(caixaData)
             });
 
             if (!response.ok) {
-                throw new Error('Erro na comunicação com o servidor');
+                const errorText = await response.text();
+                throw new Error('Erro ' + response.status + ': ' + errorText);
             }
 
             const resultado = await response.json();
+            console.log('Resposta da API:', resultado);
 
             if (resultado.codigo === 1) {
-                this.caixaAberto = resultado;
+                this.caixaAberto = true;
                 this.atualizarInterfaceStatus();
                 this.mostrarNotificacao(resultado.mensagem, 'success');
                 this.limparFormulario();
 
-                // Redirecionar para vendas
+                // Redirecionar para vendas após sucesso
                 setTimeout(() => {
-                    window.location.href = '../bazar/vendas/efetuar.html';
-                }, 1500);
+                    window.location.href = '../vendas/efetuar.html';
+                }, 2000);
 
                 return resultado;
             } else {
-                throw new Error(resultado.mensagem || 'Erro ao abrir caixa');
+                if (resultado.mensagem) {
+                    throw new Error(resultado.mensagem);
+                } else {
+                    throw new Error('Erro desconhecido ao abrir caixa');
+                }
             }
         } catch (error) {
             console.error('Erro ao abrir caixa:', error);
             this.mostrarNotificacao(error.message, 'danger');
             throw error;
-        } finally {
-            this.mostrarLoading(false);
         }
     }
 
-    /**
-     * Fecha o caixa atual
-     */
-    async fecharCaixa(valorFechamento, observacao = '') {
-        this.mostrarLoading(true);
-
-        try {
-            if (!this.voluntarioLogado) {
-                throw new Error('Nenhum voluntário logado');
-            }
-
-            const fechamentoData = {
-                voluntario: this.voluntarioLogado,
-                valorFechamento: parseFloat(valorFechamento),
-                observacao: observacao
-            };
-
-            const response = await fetch(`${this.baseURL}/caixa/fechar`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': this.getAuthToken()
-                },
-                body: JSON.stringify(fechamentoData)
-            });
-
-            if (!response.ok) {
-                throw new Error('Erro na comunicação com o servidor');
-            }
-
-            const resultado = await response.json();
-
-            if (resultado.codigo === 1) {
-                this.caixaAberto = null;
-                this.atualizarInterfaceStatus();
-                this.mostrarNotificacao(resultado.mensagem, 'success');
-                await this.buscarUltimoFechamento();
-                return resultado;
-            } else {
-                throw new Error(resultado.mensagem || 'Erro ao fechar caixa');
-            }
-        } catch (error) {
-            console.error('Erro ao fechar caixa:', error);
-            this.mostrarNotificacao(error.message, 'danger');
-            throw error;
-        } finally {
-            this.mostrarLoading(false);
-        }
-    }
-
-    /**
-     * Busca último fechamento
-     */
-    async buscarUltimoFechamento() {
-        try {
-            const response = await fetch(`${this.baseURL}/caixa/ultimo-fechamento`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': this.getAuthToken()
-                }
-            });
-
-            if (response.ok) {
-                const data = await response.json();
-                this.ultimoFechamento = data;
-                this.atualizarCardUltimoFechamento(data);
-            }
-        } catch (error) {
-            console.error('Erro ao buscar último fechamento:', error);
-            this.mostrarMensagemSemFechamento();
-        }
-    }
-
-    /**
-     * Atualiza interface baseada no status
-     */
-    atualizarInterfaceStatus() {
-        const statusElement = document.querySelector('.status-caixa');
+    configurarEventListenersAbertura() {
         const btnAbrirCaixa = document.getElementById('btnAbrirCaixa');
-        const cardAbertura = document.querySelector('.card-caixa:last-child');
-        const valorAberturaInput = document.getElementById('valorAbertura');
+        const valorAbertura = document.getElementById('valorAbertura');
 
-        if (this.caixaAberto) {
-            // Caixa ABERTO
-            if (statusElement) {
-                statusElement.innerHTML = '<span class="badge bg-success">Caixa Aberto</span>';
-            }
-
-            if (btnAbrirCaixa) {
-                btnAbrirCaixa.innerHTML = '<i class="fas fa-lock-open me-2"></i>Caixa Já Está Aberto';
-                btnAbrirCaixa.className = 'btn btn-warning btn-abrir-caixa';
-                btnAbrirCaixa.disabled = true;
-            }
-
-            if (cardAbertura) {
-                cardAbertura.classList.add('disabled');
-            }
-
-            if (valorAberturaInput) {
-                valorAberturaInput.disabled = true;
-            }
-        } else {
-            // Caixa FECHADO
-            if (statusElement) {
-                statusElement.innerHTML = '<span class="badge bg-warning">Caixa Fechado</span>';
-            }
-
-            if (btnAbrirCaixa) {
-                btnAbrirCaixa.innerHTML = '<i class="fas fa-cash-register me-2"></i>Abrir Caixa';
-                btnAbrirCaixa.className = 'btn btn-success btn-abrir-caixa';
-                btnAbrirCaixa.disabled = false;
-            }
-
-            if (cardAbertura) {
-                cardAbertura.classList.remove('disabled');
-            }
-
-            if (valorAberturaInput) {
-                valorAberturaInput.disabled = false;
-            }
-        }
-    }
-
-    /**
-     * Atualiza card do último fechamento
-     */
-    atualizarCardUltimoFechamento(ultimoCaixa) {
-        if (!ultimoCaixa) {
-            this.mostrarMensagemSemFechamento();
-            return;
-        }
-
-        const container = document.querySelector('.info-ultimo-caixa');
-        if (!container) return;
-
-        const valorFechamento = ultimoCaixa.valorFechamento || 0;
-        const valorAbertura = ultimoCaixa.valorAbertura || 0;
-        const totalVendas = valorFechamento - valorAbertura;
-
-        container.innerHTML = `
-            <div class="row">
-                <div class="col-6">
-                    <small class="text-muted d-block">Valor Final:</small>
-                    <strong class="text-success fs-5">R$ ${this.formatarMoeda(valorFechamento)}</strong>
-                </div>
-                <div class="col-6">
-                    <small class="text-muted d-block">Data/Hora:</small>
-                    <strong>${this.formatarData(ultimoCaixa.dataFechamento)}</strong>
-                </div>
-            </div>
-            <div class="row mt-3">
-                <div class="col-4">
-                    <small class="text-muted d-block">Total de Vendas:</small>
-                    <strong class="text-primary">R$ ${this.formatarMoeda(totalVendas)}</strong>
-                </div>
-                <div class="col-4">
-                    <small class="text-muted d-block">Retiradas:</small>
-                    <strong class="text-warning">R$ ${this.formatarMoeda(0)}</strong>
-                </div>
-                <div class="col-4">
-                    <small class="text-muted d-block">Diferença:</small>
-                    <strong class="text-info">R$ ${this.formatarMoeda(0)}</strong>
-                </div>
-            </div>
-        `;
-    }
-
-    /**
-     * Mostra mensagem quando não há fechamentos
-     */
-    mostrarMensagemSemFechamento() {
-        const container = document.querySelector('.info-ultimo-caixa');
-        if (container) {
-            container.innerHTML = `
-                <div class="info-sem-fechamento">
-                    <i class="fas fa-history fa-2x mb-3 text-muted"></i>
-                    <h6 class="text-muted">Nenhum fechamento anterior</h6>
-                    <p class="small text-muted mb-0">Não há registros de fechamento de caixa</p>
-                </div>
-            `;
-        }
-    }
-
-    /**
-     * Configura event listeners
-     */
-    configurarEventListeners() {
-        const btnAbrirCaixa = document.getElementById('btnAbrirCaixa');
+        console.log('Configurando event listeners para abertura...');
+        console.log('btnAbrirCaixa encontrado:', !!btnAbrirCaixa);
+        console.log('valorAbertura encontrado:', !!valorAbertura);
 
         if (btnAbrirCaixa) {
             btnAbrirCaixa.addEventListener('click', () => {
+                console.log('Botão abrir caixa clicado!');
                 this.handleAbrirCaixa();
             });
+        } else {
+            console.error('Botão btnAbrirCaixa não encontrado!');
         }
 
-        // Enter no campo valor
-        const valorAbertura = document.getElementById('valorAbertura');
         if (valorAbertura) {
+            // Validação em tempo real
+            valorAbertura.addEventListener('input', (e) => {
+                this.limparErroCampo('valorAbertura');
+                let value = e.target.value.replace(/\D/g, '');
+                value = (value / 100).toFixed(2);
+                if (value) {
+                    e.target.value = this.formatarMoeda(parseFloat(value));
+
+                    // Validação visual em tempo real
+                    const valorNumerico = this.parseMoeda(e.target.value);
+                    if (valorNumerico > 0) {
+                        e.target.classList.add('is-valid');
+                    }
+                } else {
+                    e.target.value = '';
+                    e.target.classList.remove('is-valid');
+                }
+            });
+
+            valorAbertura.addEventListener('blur', (e) => {
+                const valorNumerico = this.parseMoeda(e.target.value);
+                if (valorNumerico <= 0 && e.target.value) {
+                    this.mostrarErroCampo('valorAbertura', 'Valor deve ser maior que zero');
+                }
+            });
+
             valorAbertura.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') {
                     this.handleAbrirCaixa();
@@ -363,193 +269,294 @@ class CaixaManager {
             });
         }
 
-        // Botão de fechamento forçado (debug)
-        const btnDebug = document.getElementById('btnDebug');
-        if (btnDebug) {
-            btnDebug.addEventListener('click', () => {
-                this.forcarFechamentoCaixa();
+        // Adicionar também o listener no formulário para prevenir submit padrão
+        const formAbrirCaixa = document.getElementById('formAbrirCaixa');
+        if (formAbrirCaixa) {
+            formAbrirCaixa.addEventListener('submit', (e) => {
+                e.preventDefault();
+                this.handleAbrirCaixa();
             });
         }
     }
 
-    /**
-     * Configura máscaras de input
-     */
-    configurarMascaras() {
-        const valorAbertura = document.getElementById('valorAbertura');
-        if (valorAbertura) {
-            valorAbertura.addEventListener('input', (e) => {
-                let value = e.target.value.replace(/\D/g, '');
-                value = (value / 100).toFixed(2);
-                e.target.value = value ? parseFloat(value).toLocaleString('pt-BR', {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2
-                }) : '';
-            });
-        }
-    }
-
-    /**
-     * Handler para abrir caixa
-     */
     async handleAbrirCaixa() {
-        const valorAbertura = document.getElementById('valorAbertura');
-        const observacao = document.getElementById('observacao');
+        console.log('Iniciando processo de abertura de caixa...');
 
-        if (!valorAbertura) {
-            this.mostrarNotificacao('Campo de valor não encontrado', 'danger');
+        const valorAberturaInput = document.getElementById('valorAbertura');
+        const observacaoInput = document.getElementById('observacao');
+
+        // Limpar mensagens anteriores
+        this.limparMensagens('mensagensAbertura');
+        this.limparErroCampo('valorAbertura');
+
+        // Validação do valor
+        if (!valorAberturaInput || !valorAberturaInput.value) {
+            this.mostrarErroCampo('valorAbertura', 'Informe o valor de abertura!');
+            this.mostrarMensagem('mensagensAbertura', 'É necessário informar um valor para abrir o caixa.', 'warning');
+            if (valorAberturaInput) {
+                valorAberturaInput.focus();
+            }
             return;
         }
 
-        const valor = valorAbertura.value.replace(/\./g, '').replace(',', '.');
+        const valorAbertura = this.parseMoeda(valorAberturaInput.value);
+        console.log('Valor de abertura parseado:', valorAbertura);
 
-        if (!valor || parseFloat(valor) <= 0) {
-            this.mostrarNotificacao('Por favor, informe um valor válido para abertura do caixa!', 'warning');
-            valorAbertura.focus();
+        if (valorAbertura <= 0) {
+            this.mostrarErroCampo('valorAbertura', 'O valor deve ser maior que zero!');
+            this.mostrarMensagem('mensagensAbertura', 'O valor de abertura deve ser maior que R$ 0,00.', 'warning');
+            valorAberturaInput.focus();
             return;
         }
 
-        if (confirm(`Confirma a abertura do caixa com R$ ${parseFloat(valor).toFixed(2)}?`)) {
+        if (this.caixaAberto) {
+            this.mostrarMensagem('mensagensAbertura', 'Já existe um caixa aberto! É necessário fechar o caixa atual antes de abrir outro.', 'warning');
+            return;
+        }
+
+        let observacao = '';
+        if (observacaoInput && observacaoInput.value) {
+            observacao = observacaoInput.value.trim();
+        }
+
+        // Se passou nas validações, marca como válido
+        valorAberturaInput.classList.add('is-valid');
+
+        if (confirm(`Confirma a abertura do caixa com R$ ${this.formatarMoeda(valorAbertura)}?`)) {
+            const btnAbrir = document.getElementById('btnAbrirCaixa');
+            const originalText = btnAbrir.innerHTML;
+
             try {
-                await this.abrirCaixa(valor, observacao?.value || '');
+                btnAbrir.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Abrindo...';
+                btnAbrir.disabled = true;
+
+                await this.abrirCaixa(valorAbertura, observacao);
             } catch (error) {
                 // Erro já tratado no método abrirCaixa
+                console.error('Erro no handleAbrirCaixa:', error);
+            } finally {
+                btnAbrir.innerHTML = originalText;
+                btnAbrir.disabled = false;
             }
         }
     }
 
-    // ========== MÉTODOS UTILITÁRIOS ==========
+    // ========== MÉTODOS DE INTERFACE ==========
+
+    atualizarInterfaceStatus() {
+        const statusElement = document.querySelector('.status-caixa');
+        if (!statusElement) {
+            console.warn('Elemento .status-caixa não encontrado');
+            return;
+        }
+
+        console.log('Atualizando interface status. Caixa aberto:', this.caixaAberto);
+
+        if (this.caixaAberto) {
+            statusElement.innerHTML = '<span class="badge bg-success">Caixa Aberto</span>';
+
+            // Desabilitar abertura se caixa já estiver aberto
+            if (this.modo === 'abertura') {
+                const btnAbrir = document.getElementById('btnAbrirCaixa');
+                if (btnAbrir) {
+                    btnAbrir.disabled = true;
+                    btnAbrir.innerHTML = '<i class="fas fa-check me-2"></i>Caixa Já Aberto';
+                    this.mostrarMensagem('mensagensAbertura', 'Já existe um caixa aberto. Feche o caixa atual antes de abrir outro.', 'warning');
+                }
+            }
+        } else {
+            statusElement.innerHTML = '<span class="badge bg-warning">Caixa Fechado</span>';
+        }
+    }
+
+    atualizarInterfaceUltimoCaixa() {
+        const container = document.querySelector('.info-ultimo-caixa');
+        if (!container) {
+            console.warn('Elemento .info-ultimo-caixa não encontrado');
+            return;
+        }
+
+        if (!this.ultimoCaixa) {
+            container.innerHTML = '<div class="alert alert-info"><i class="fas fa-info-circle me-2"></i>Carregando dados do último caixa...</div>';
+            return;
+        }
+
+        if (this.ultimoCaixa.codigo === -4 || !this.ultimoCaixa.dataAbertura) {
+            container.innerHTML = '<div class="alert alert-info"><i class="fas fa-info-circle me-2"></i>Nenhum caixa encontrado no histórico.</div>';
+            return;
+        }
+
+        const html = `
+            <div class="row">
+                <div class="col-6">
+                    <small class="text-muted d-block">Abertura:</small>
+                    <strong class="text-success">R$ ${this.formatarMoeda(this.ultimoCaixa.valorAbertura)}</strong>
+                </div>
+                <div class="col-6">
+                    <small class="text-muted d-block">Fechamento:</small>
+                    <strong class="text-primary">R$ ${this.formatarMoeda(this.ultimoCaixa.valorFechamento)}</strong>
+                </div>
+            </div>
+            <div class="row mt-2">
+                <div class="col-6">
+                    <small class="text-muted d-block">Data Abertura:</small>
+                    <strong>${this.formatarData(this.ultimoCaixa.dataAbertura)}</strong>
+                </div>
+                <div class="col-6">
+                    <small class="text-muted d-block">Data Fechamento:</small>
+                    <strong>${this.formatarData(this.ultimoCaixa.dataFechamento)}</strong>
+                </div>
+            </div>
+        `;
+
+        container.innerHTML = html;
+    }
+
+    // ========== UTILITÁRIOS ==========
 
     formatarMoeda(valor) {
+        if (!valor && valor !== 0) return '0,00';
+
         return parseFloat(valor).toLocaleString('pt-BR', {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2
         });
     }
 
-    formatarData(dataString) {
-        try {
-            if (!dataString) return 'N/A';
-            const data = new Date(dataString);
-            return data.toLocaleString('pt-BR');
-        } catch (error) {
-            return dataString;
+    parseMoeda(valorString) {
+        if (!valorString) {
+            return 0;
         }
+        const valorLimpo = valorString.replace(/\./g, '').replace(',', '.');
+        return parseFloat(valorLimpo) || 0;
     }
 
-    getAuthToken() {
-        return localStorage.getItem('authToken') || sessionStorage.getItem('authToken') || '';
+    formatarData(dataString) {
+        try {
+            if (!dataString) {
+                return 'N/A';
+            }
+            const data = new Date(dataString);
+            if (isNaN(data.getTime())) {
+                return dataString;
+            }
+            return data.toLocaleString('pt-BR');
+        } catch (error) {
+            console.warn('Erro ao formatar data:', dataString, error);
+            return dataString || 'N/A';
+        }
     }
 
     limparFormulario() {
         const valorAbertura = document.getElementById('valorAbertura');
         const observacao = document.getElementById('observacao');
 
-        if (valorAbertura) valorAbertura.value = '';
-        if (observacao) observacao.value = '';
-    }
-
-    mostrarLoading(mostrar) {
-        const btnAbrirCaixa = document.getElementById('btnAbrirCaixa');
-        if (btnAbrirCaixa) {
-            if (mostrar) {
-                btnAbrirCaixa.disabled = true;
-                btnAbrirCaixa.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Abrindo...';
-                btnAbrirCaixa.classList.add('loading');
-            } else {
-                btnAbrirCaixa.disabled = this.caixaAberto !== null;
-                btnAbrirCaixa.innerHTML = this.caixaAberto ?
-                    '<i class="fas fa-lock-open me-2"></i>Caixa Já Está Aberto' :
-                    '<i class="fas fa-cash-register me-2"></i>Abrir Caixa';
-                btnAbrirCaixa.classList.remove('loading');
-            }
+        if (valorAbertura) {
+            valorAbertura.value = '';
+            valorAbertura.classList.remove('is-valid');
         }
+        if (observacao) {
+            observacao.value = '';
+        }
+
+        this.limparMensagens('mensagensAbertura');
     }
 
-    mostrarNotificacao(mensagem, tipo = 'info') {
+    mostrarNotificacao(mensagem, tipo) {
+        console.log(`Notificação [${tipo}]:`, mensagem);
+
+        // Usar o sistema de mensagens integrado
+        this.mostrarMensagem('mensagensAbertura', mensagem, tipo);
+
+        // Fallback para notify (mantém o anterior como backup)
         if (typeof $.notify === 'function') {
+            let icone = 'fas fa-info-circle';
+            if (tipo === 'success') {
+                icone = 'fas fa-check';
+            } else if (tipo === 'warning') {
+                icone = 'fas fa-exclamation-triangle';
+            } else if (tipo === 'danger') {
+                icone = 'fas fa-times';
+            }
+
             $.notify({
-                icon: this.getIconeNotificacao(tipo),
+                icon: icone,
                 message: mensagem
             }, {
                 type: tipo,
                 placement: { from: "top", align: "right" },
-                delay: 4000,
+                delay: 5000,
                 animate: { enter: 'animated fadeInDown', exit: 'animated fadeOutUp' }
             });
-        } else {
-            // Fallback simples
-            alert(`${tipo.toUpperCase()}: ${mensagem}`);
         }
     }
 
-    getIconeNotificacao(tipo) {
-        const icones = {
-            success: 'fas fa-check',
-            warning: 'fas fa-exclamation-triangle',
-            danger: 'fas fa-times',
-            info: 'fas fa-info-circle'
-        };
-        return icones[tipo] || icones.info;
-    }
-
-    /**
-     * Método para debug - forçar fechamento
-     */
-    async forcarFechamentoCaixa() {
-        if (this.caixaAberto && confirm('Deseja forçar o fechamento do caixa atual?')) {
-            const valor = prompt('Informe o valor de fechamento:');
-            if (valor && !isNaN(valor)) {
-                try {
-                    await this.fecharCaixa(valor, 'Fechamento forçado via debug');
-                } catch (error) {
-                    console.error('Erro no fechamento forçado:', error);
-                }
+    iniciarAtualizacaoHora() {
+        const atualizar = () => {
+            const now = new Date();
+            const horaElement = document.getElementById('horaAtual');
+            if (horaElement) {
+                horaElement.innerText = now.toLocaleString('pt-BR', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit'
+                });
             }
-        } else if (!this.caixaAberto) {
-            alert('Nenhum caixa aberto para fechar');
-        }
-    }
-}
-
-// Inicialização quando o DOM estiver carregado
-document.addEventListener('DOMContentLoaded', function() {
-    // Inicializar gerenciador de caixa
-    window.caixaManager = new CaixaManager();
-
-    // Configurar atualização de hora
-    function atualizarHora() {
-        const now = new Date();
-        const options = {
-            weekday: 'long',
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit'
         };
-        const horaElement = document.getElementById('horaAtual');
-        if (horaElement) {
-            horaElement.innerText = now.toLocaleString('pt-BR', options);
+
+        setInterval(atualizar, 1000);
+        atualizar();
+    }
+}
+
+// Função de inicialização global
+function inicializarSistemaCaixa() {
+    console.log('Inicializando sistema de caixa...');
+
+    const path = window.location.pathname;
+    let modo = 'abertura';
+
+    if (path.includes('fechar.html')) {
+        modo = 'fechamento';
+    }
+
+    console.log('Modo detectado:', modo);
+
+    try {
+        window.caixaManager = new CaixaManager(modo);
+        console.log('Sistema de caixa inicializado com sucesso');
+    } catch (error) {
+        console.error('Erro ao inicializar sistema de caixa:', error);
+
+        // Fallback básico
+        const btnAbrir = document.getElementById('btnAbrirCaixa');
+        if (btnAbrir) {
+            btnAbrir.addEventListener('click', () => {
+                alert('Sistema temporariamente indisponível. Tente novamente.');
+            });
         }
     }
-
-    setInterval(atualizarHora, 1000);
-    atualizarHora();
-
-    // Adicionar botão de debug em ambiente de desenvolvimento
-    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-        const debugBtn = document.createElement('button');
-        debugBtn.id = 'btnDebug';
-        debugBtn.innerHTML = '🐛 Debug';
-        debugBtn.className = 'btn btn-sm btn-outline-secondary debug-tool';
-        debugBtn.title = 'Fechamento forçado (apenas desenvolvimento)';
-        document.body.appendChild(debugBtn);
-    }
-});
-
-// Export para uso em módulos
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = CaixaManager;
 }
+
+// Inicialização quando o DOM estiver pronto
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', inicializarSistemaCaixa);
+} else {
+    inicializarSistemaCaixa();
+}
+
+// Export para uso global
+window.CaixaManager = CaixaManager;
+window.inicializarSistemaCaixa = inicializarSistemaCaixa;
+
+// Debug helper
+window.debugCaixa = function() {
+    console.log('=== DEBUG CAIXA ===');
+    console.log('caixaManager:', window.caixaManager);
+    console.log('btnAbrirCaixa:', document.getElementById('btnAbrirCaixa'));
+    console.log('valorAbertura:', document.getElementById('valorAbertura'));
+    console.log('=== FIM DEBUG ===');
+};

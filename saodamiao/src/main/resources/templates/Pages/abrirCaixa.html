@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>Abrir Caixa - Sistema ONG</title>
+    <meta content="width=device-width, initial-scale=1.0, shrink-to-fit=no" name="viewport" />
+    <link rel="icon" href="../img/favicon.ico" type="image/x-icon" />
+
+    <!-- Fonts and icons -->
+    <!--<script src="../js/plugin/webfont/webfont.min.js"></script>-->
+    <script>
+        WebFont.load({
+            google: { families: ["Public Sans:300,400,500,600,700"] },
+            custom: {
+                families: [
+                    "Font Awesome 5 Solid",
+                    "Font Awesome 5 Regular",
+                    "Font Awesome 5 Brands",
+                    "simple-line-icons",
+                ],
+                urls: ["../css/fonts.min.css"],
+            },
+            active: function () { sessionStorage.fonts = true; },
+        });
+    </script>
+
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="../css/bootstrap.min.css" />
+    <link rel="stylesheet" href="../css/plugins.min.css" />
+    <link rel="stylesheet" href="../css/kaiadmin.min.css" />
+    <link rel="stylesheet" href="../css/demo.css" />
+    
+    <!-- CSS do Módulo de Caixa -->
+    <link rel="stylesheet" href="../css/caixa.css" />
+</head>
+<body>
+    <script> document.addEventListener('DOMContentLoaded', carregarParametrizacao); </script>
+    <div class="wrapper">
+        <!-- Sidebar -->
+        <div class="sidebar" data-background-color="dark">
+            <div class="sidebar-logo">
+                <div class="logo-header" data-background-color="dark">
+                    <a href="index.html" class="logo">
+                        <img id="img-logo" alt="navbar brand" class="navbar-brand" height="80" width="110" />
+                    </a>
+                    <div class="nav-toggle">
+                        <button class="btn btn-toggle toggle-sidebar"><i class="gg-menu-right"></i></button>
+                        <button class="btn btn-toggle sidenav-toggler"><i class="gg-menu-left"></i></button>
+                    </div>
+                    <button class="topbar-toggler more"><i class="gg-more-vertical-alt"></i></button>
+                </div>
+            </div>
+
+            <div class="sidebar-wrapper scrollbar scrollbar-inner">
+                <div class="sidebar-content">
+                    <ul class="nav nav-secondary">
+
+                        <li class="nav-section">
+                            <span class="sidebar-mini-icon"><i class="fa fa-ellipsis-h"></i></span>
+                            <h4 class="text-section">Menu</h4>
+                        </li>
+
+                        <!-- Pessoas -->
+                        <li class="nav-item">
+                            <a data-bs-toggle="collapse" href="#pessoas">
+                                <i class="fas fa-users"></i>
+                                <p>Pessoas</p>
+                                <span class="caret"></span>
+                            </a>
+                            <div class="collapse" id="pessoas">
+                                <ul class="nav nav-collapse">
+                                    <li>
+                                        <a data-bs-toggle="collapse" href="#pessoas-funcionarios">
+                                            <i class="fas fa-id-badge me-2"></i><span class="sub-item">Funcionários</span>
+                                            <span class="caret"></span>
+                                        </a>
+                                        <div class="collapse" id="pessoas-funcionarios">
+                                            <ul class="nav nav-collapse subnav">
+                                                <li><a href="funcionarios/create.html"><span class="sub-item">Cadastrar</span></a></li>
+                                                <li><a href="funcionarios/list.html"><span class="sub-item">Listar / Consultar</span></a></li>
+                                                <li><a href="funcionarios/edit.html"><span class="sub-item">Editar</span></a></li>
+                                                <li><a href="funcionarios/delete.html"><span class="sub-item">Excluir</span></a></li>
+                                            </ul>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <a data-bs-toggle="collapse" href="#pessoas-beneficiarios">
+                                            <i class="fas fa-user me-2"></i><span class="sub-item">Beneficiários</span>
+                                            <span class="caret"></span>
+                                        </a>
+                                        <div class="collapse" id="pessoas-beneficiarios">
+                                            <ul class="nav nav-collapse subnav">
+                                                <li><a href="beneficiarios/create.html"><span class="sub-item">Cadastrar</span></a></li>
+                                                <li><a href="beneficiarios/list.html"><span class="sub-item">Listar / Consultar</span></a></li>
+                                                <li><a href="beneficiarios/edit.html"><span class="sub-item">Editar</span></a></li>
+                                                <li><a href="beneficiarios/delete.html"><span class="sub-item">Excluir</span></a></li>
+                                            </ul>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <a data-bs-toggle="collapse" href="#pessoas-colaboradores">
+                                            <i class="fas fa-user-cog me-2"></i><span class="sub-item">Colaboradores</span>
+                                            <span class="caret"></span>
+                                        </a>
+                                        <div class="collapse" id="pessoas-colaboradores">
+                                            <ul class="nav nav-collapse subnav">
+                                                <li><a href="colaboradores/create.html"><span class="sub-item">Cadastrar</span></a></li>
+                                                <li><a href="colaboradores/list.html"><span class="sub-item">Listar / Consultar</span></a></li>
+                                                <li><a href="colaboradores/edit.html"><span class="sub-item">Editar</span></a></li>
+                                                <li><a href="colaboradores/delete.html"><span class="sub-item">Excluir</span></a></li>
+                                            </ul>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <a data-bs-toggle="collapse" href="#pessoas-voluntarios">
+                                            <i class="fas fa-hands-helping me-2"></i><span class="sub-item">Voluntários</span>
+                                            <span class="caret"></span>
+                                        </a>
+                                        <div class="collapse" id="pessoas-voluntarios">
+                                            <ul class="nav nav-collapse subnav">
+                                                <li><a href="voluntarios/create.html"><span class="sub-item">Cadastrar</span></a></li>
+                                                <li><a href="voluntarios/list.html"><span class="sub-item">Listar / Consultar</span></a></li>
+                                                <li><a href="voluntarios/edit.html"><span class="sub-item">Editar</span></a></li>
+                                                <li><a href="voluntarios/delete.html"><span class="sub-item">Excluir</span></a></li>
+                                            </ul>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <a data-bs-toggle="collapse" href="#pessoas-gestores">
+                                            <i class="fas fa-user-tie me-2"></i><span class="sub-item">Gestores</span>
+                                            <span class="caret"></span>
+                                        </a>
+                                        <div class="collapse" id="pessoas-gestores">
+                                            <ul class="nav nav-collapse subnav">
+                                                <li><a href="gestores/create.html"><span class="sub-item">Cadastrar</span></a></li>
+                                                <li><a href="gestores/list.html"><span class="sub-item">Listar / Consultar</span></a></li>
+                                                <li><a href="gestores/edit.html"><span class="sub-item">Editar</span></a></li>
+                                                <li><a href="gestores/delete.html"><span class="sub-item">Excluir</span></a></li>
+                                            </ul>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <a data-bs-toggle="collapse" href="#pessoas-permissoes">
+                                            <i class="fas fa-lock me-2"></i><span class="sub-item">Permissões</span>
+                                            <span class="caret"></span>
+                                        </a>
+                                        <div class="collapse" id="pessoas-permissoes">
+                                            <ul class="nav nav-collapse subnav">
+                                                <li><a href="permissoes/create.html"><span class="sub-item">Cadastrar</span></a></li>
+                                                <li><a href="permissoes/list.html"><span class="sub-item">Listar / Consultar</span></a></li>
+                                                <li><a href="permissoes/edit.html"><span class="sub-item">Editar</span></a></li>
+                                                <li><a href="permissoes/delete.html"><span class="sub-item">Excluir</span></a></li>
+                                            </ul>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+
+                        <!-- Cestas Básicas -->
+                        <li class="nav-item">
+                            <a data-bs-toggle="collapse" href="#cestas-basicas">
+                                <i class="fas fa-shopping-basket"></i>
+                                <p>Cestas Básicas</p>
+                                <span class="caret"></span>
+                            </a>
+                            <div class="collapse" id="cestas-basicas">
+                                <ul class="nav nav-collapse">
+                                    <li>
+                                        <a data-bs-toggle="collapse" href="#cestas-tipos">
+                                            <i class="fas fa-layer-group me-2"></i><span class="sub-item">Tipos de Cesta</span>
+                                            <span class="caret"></span>
+                                        </a>
+                                        <div class="collapse" id="cestas-tipos">
+                                            <ul class="nav nav-collapse subnav">
+                                                <li><a href="cestas_basicas/tipos/create.html"><span class="sub-item">Cadastrar</span></a></li>
+                                                <li><a href="cestas_basicas/tipos/list.html"><span class="sub-item">Listar / Consultar</span></a></li>
+                                                <li><a href="cestas_basicas/tipos/edit.html"><span class="sub-item">Editar</span></a></li>
+                                                <li><a href="cestas_basicas/tipos/delete.html"><span class="sub-item">Excluir</span></a></li>
+                                            </ul>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <a data-bs-toggle="collapse" href="#cestas-itens">
+                                            <i class="fas fa-boxes me-2"></i><span class="sub-item">Itens da Cesta</span>
+                                            <span class="caret"></span>
+                                        </a>
+                                        <div class="collapse" id="cestas-itens">
+                                            <ul class="nav nav-collapse subnav">
+                                                <li><a href="cestas_basicas/itens_cesta/create.html"><span class="sub-item">Cadastrar</span></a></li>
+                                                <li><a href="cestas_basicas/itens_cesta/list.html"><span class="sub-item">Listar / Consultar</span></a></li>
+                                                <li><a href="cestas_basicas/itens_cesta/edit.html"><span class="sub-item">Editar</span></a></li>
+                                                <li><a href="cestas_basicas/itens_cesta/delete.html"><span class="sub-item">Excluir</span></a></li>
+                                            </ul>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <a data-bs-toggle="collapse" href="#cestas-alimentos">
+                                            <i class="fas fa-apple-alt me-2"></i><span class="sub-item">Alimentos</span>
+                                            <span class="caret"></span>
+                                        </a>
+                                        <div class="collapse" id="cestas-alimentos">
+                                            <ul class="nav nav-collapse subnav">
+                                                <li><a id="cadastro-alimento" href="#"><span class="sub-item">Cadastrar</span></a></li>
+                                                <li><a href="alimentos/list.html"><span class="sub-item">Listar / Consultar</span></a></li>
+                                                <li><a href="alimentos/edit.html"><span class="sub-item">Editar</span></a></li>
+                                                <li><a href="alimentos/delete.html"><span class="sub-item">Excluir</span></a></li>
+                                            </ul>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <a data-bs-toggle="collapse" href="#cestas-tipos-alimento">
+                                            <i class="fas fa-th-large me-2"></i><span class="sub-item">Tipos de Alimento</span>
+                                            <span class="caret"></span>
+                                        </a>
+                                        <div class="collapse" id="cestas-tipos-alimento">
+                                            <ul class="nav nav-collapse subnav">
+                                                <li><a href="#"><span class="sub-item">Cadastrar</span></a></li>
+                                                <li><a href="#"><span class="sub-item">Listar / Consultar</span></a></li>
+                                                <li><a href="#"><span class="sub-item">Editar</span></a></li>
+                                                <li><a href="#"><span class="sub-item">Excluir</span></a></li>
+                                            </ul>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <a data-bs-toggle="collapse" href="#cestas-agendamentos">
+                                            <i class="fas fa-calendar-check me-2"></i><span class="sub-item">Agendamentos de Entrega</span>
+                                            <span class="caret"></span>
+                                        </a>
+                                        <div class="collapse" id="cestas-agendamentos">
+                                            <ul class="nav nav-collapse subnav">
+                                                <li><a href="agendamentos_entrega/create.html"><span class="sub-item">Cadastrar</span></a></li>
+                                                <li><a href="agendamentos_entrega/list.html"><span class="sub-item">Listar / Consultar</span></a></li>
+                                                <li><a href="agendamentos_entrega/edit.html"><span class="sub-item">Editar</span></a></li>
+                                                <li><a href="agendamentos_entrega/delete.html"><span class="sub-item">Excluir</span></a></li>
+                                            </ul>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <a href="inspecao_alimento/index.html">
+                                            <i class="fas fa-search-plus me-2"></i><span class="sub-item">Inspeções de Alimento</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+
+                        <!-- Bazar -->
+                        <li class="nav-item">
+                            <a data-bs-toggle="collapse" href="#bazar">
+                                <i class="fas fa-store"></i>
+                                <p>Bazar</p>
+                                <span class="caret"></span>
+                            </a>
+                            <div class="collapse" id="bazar">
+                                <ul class="nav nav-collapse">
+                                    <li><a href="bazar/vendas/efetuar.html"><i class="fas fa-cash-register me-2"></i><span class="sub-item">Efetuar Venda</span></a></li>
+                                    <li><a href="bazar/caixa/abrir.html"><i class="fas fa-money-bill-wave me-2"></i><span class="sub-item">Abrir Caixa</span></a></li>
+                                    <li><a href="bazar/caixa/fechar.html"><i class="fas fa-lock me-2"></i><span class="sub-item">Fechar Caixa</span></a></li>
+
+                                    <li>
+                                        <a data-bs-toggle="collapse" href="#bazar-clientes">
+                                            <i class="fas fa-users me-2"></i><span class="sub-item">Clientes do Bazar</span>
+                                            <span class="caret"></span>
+                                        </a>
+                                        <div class="collapse" id="bazar-clientes">
+                                            <ul class="nav nav-collapse subnav">
+                                                <!-- ESTE LINK DISPARA A INJEÇÃO PELO Clientes.js -->
+                                                <li><a href="#" onclick="return BazarClientes.mount();"><span class="sub-item">Cadastrar</span></a></li>
+                                                <li><a href="clientes_bazar/list.html"><span class="sub-item">Listar / Consultar</span></a></li>
+                                                <li><a href="clientes_bazar/edit.html"><span class="sub-item">Editar</span></a></li>
+                                                <li><a href="clientes_bazar/delete.html"><span class="sub-item">Excluir</span></a></li>
+                                            </ul>
+                                        </div>
+                                    </li>
+
+                                    <li>
+                                        <a data-bs-toggle="collapse" href="#bazar-tipo">
+                                            <i class="fas fa-tags me-2"></i><span class="sub-item">Tipo de Bazar</span>
+                                            <span class="caret"></span>
+                                        </a>
+                                        <div class="collapse" id="bazar-tipo">
+                                            <ul class="nav nav-collapse subnav">
+                                                <li><a href="bazar/tipo/create.html"><span class="sub-item">Cadastrar</span></a></li>
+                                                <li><a href="bazar/tipo/list.html"><span class="sub-item">Listar / Consultar</span></a></li>
+                                                <li><a href="bazar/tipo/edit.html"><span class="sub-item">Editar</span></a></li>
+                                                <li><a href="bazar/tipo/delete.html"><span class="sub-item">Excluir</span></a></li>
+                                            </ul>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+
+                        <!-- Entradas de Doações -->
+                        <li class="nav-item">
+                            <a data-bs-toggle="collapse" href="#entradas-doacoes">
+                                <i class="fas fa-gift"></i>
+                                <p>Entradas de Doações</p>
+                                <span class="caret"></span>
+                            </a>
+                            <div class="collapse" id="entradas-doacoes">
+                                <ul class="nav nav-collapse">
+                                    <li><a href="entradas_doacao/alimentos/create.html"><i class="fas fa-apple-alt me-2"></i><span class="sub-item">Doar Alimentos</span></a></li>
+                                    <li><a href="entradas_doacao/bazar/create.html"><i class="fas fa-tshirt me-2"></i><span class="sub-item">Doar Itens do Bazar</span></a></li>
+                                </ul>
+                            </div>
+                        </li>
+
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <!-- End Sidebar -->
+
+        <div class="main-panel">
+            <div class="main-header">
+                <div class="main-header-logo">
+                    <div class="logo-header" data-background-color="dark">
+                        <a href="index.html" class="logo">
+                            <img src="../img/kaiadmin/logo_light.svg" alt="navbar brand" class="navbar-brand" height="20" />
+                        </a>
+                        <div class="nav-toggle">
+                            <button class="btn btn-toggle toggle-sidebar"><i class="gg-menu-right"></i></button>
+                            <button class="btn btn-toggle sidenav-toggler"><i class="gg-menu-left"></i></button>
+                        </div>
+                        <button class="topbar-toggler more"><i class="gg-more-vertical-alt"></i></button>
+                    </div>
+                </div>
+
+                <!-- Navbar Header -->
+                <nav class="navbar navbar-header navbar-header-transparent navbar-expand-lg border-bottom">
+                    <div class="container-fluid">
+                        <h1 id="nome-ong"></h1>
+                        <ul class="navbar-nav topbar-nav ms-md-auto align-items-center">
+                            <li class="nav-item topbar-user dropdown hidden-caret">
+                                <a class="dropdown-toggle profile-pic" data-bs-toggle="dropdown" href="#" aria-expanded="false">
+                                    <div class="avatar-sm">
+                                        <img src="../img/profile.jpg" alt="..." class="avatar-img rounded-circle" />
+                                    </div>
+                                    <span class="profile-username">
+                    <span class="op-7">Olá,</span>
+                    <span class="fw-bold">Administrador</span>
+                    </span>
+                                </a>
+                                <ul class="dropdown-menu dropdown-user animated fadeIn">
+                                    <div class="dropdown-user-scroll scrollbar-outer">
+                                        <li>
+                                            <div class="user-box">
+                                                <div class="avatar-lg">
+                                                    <img src="../img/profile.jpg" alt="image profile" class="avatar-img rounded" />
+                                                </div>
+                                                <div class="u-text">
+                                                    <h4>Administrador</h4>
+                                                    <p class="text-muted">admin@ong.com</p>
+                                                    <a href="profile.html" class="btn btn-xs btn-secondary btn-sm">Ver Perfil</a>
+                                                </div>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <div class="dropdown-divider"></div>
+                                            <a class="dropdown-item" href="#">Configurações</a>
+                                            <div class="dropdown-divider"></div>
+                                            <a class="dropdown-item" href="#">Sair</a>
+                                        </li>
+                                    </div>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                </nav>
+                <!-- End Navbar -->
+            </div>
+            <!-- CONTEÚDO DINÂMICO (Clientes.js vai centralizar e injetar aqui) -->
+            <main id="app-content" class="container-fluid my-4">
+                <div class="text-muted">Selecione uma opção no menu.</div>
+            </main>
+
+            <main id="content" class="container-fluid my-4">
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h2 class="page-title">Controle de Caixa</h2>
+                        <p class="text-muted">Gerencie a abertura e fechamento do caixa do bazar</p>
+                    </div>
+                </div>
+
+                <div class="caixa-container">
+                    <!-- Card do último fechamento -->
+                    <div class="card card-caixa shadow-sm">
+                        <div class="card-header bg-light">
+                            <h4 class="card-title mb-0">
+                                <i class="fas fa-chart-bar me-2"></i>Último Fechamento
+                            </h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="info-ultimo-caixa p-3 mb-3 rounded">
+                                <!-- Conteúdo dinâmico via JavaScript -->
+                                <div class="text-center">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="visually-hidden">Carregando...</span>
+                                    </div>
+                                    <p class="mt-2 mb-0 text-muted">Carregando dados...</p>
+                                </div>
+                            </div>
+                            
+                            <div class="caixa-stats">
+                                <h5><i class="fas fa-info-circle me-2"></i>Resumo</h5>
+                                <div class="row">
+                                    <div class="col-6">
+                                        <small class="opacity-75">Total de Vendas:</small>
+                                        <strong class="d-block">R$ 0,00</strong>
+                                    </div>
+                                    <div class="col-6">
+                                        <small class="opacity-75">Retiradas:</small>
+                                        <strong class="d-block">R$ 0,00</strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card para abrir novo caixa -->
+                    <div class="card card-caixa shadow-sm">
+                        <div class="card-header bg-light">
+                            <h4 class="card-title mb-0">
+                                <i class="fas fa-cash-register me-2"></i>Abrir Novo Caixa
+                            </h4>
+                        </div>
+                        <div class="card-body">
+                            <!-- DIV PARA MENSAGENS DE ERRO/SUCESSO -->
+                            <div id="mensagensAbertura" class="mb-3" style="display: none;">
+                                <!-- As mensagens aparecerão aqui -->
+                            </div>
+
+                            <p class="text-muted mb-4">
+                                Informe o valor inicial em dinheiro para iniciar as operações do dia.
+                            </p>
+
+                            <form id="formAbrirCaixa">
+                                <div class="mb-4">
+                                    <label for="valorAbertura" class="form-label fw-bold">
+                                        <i class="fas fa-money-bill-wave me-1"></i>Valor de Abertura *
+                                    </label>
+                                    <div class="input-group input-group-lg">
+                                        <span class="input-group-text">R$</span>
+                                        <input type="text"
+                                               class="form-control"
+                                               id="valorAbertura"
+                                               placeholder="0,00"
+                                               required
+                                               maxlength="15">
+                                    </div>
+                                    <!-- MENSAGEM DE ERRO ESPECÍFICA DO CAMPO -->
+                                    <div id="erroValorAbertura" class="text-danger mt-1 small" style="display: none;"></div>
+                                    <small class="text-muted">Valor em espécie para iniciar o caixa</small>
+                                </div>
+
+                                <div class="mb-4">
+                                    <label for="observacao" class="form-label">
+                                        <i class="fas fa-sticky-note me-1"></i>Observação (opcional)
+                                    </label>
+                                    <textarea class="form-control"
+                                              id="observacao"
+                                              rows="3"
+                                              placeholder="Alguma observação sobre a abertura (turno, responsável, etc.)..."></textarea>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Botão de ação -->
+                <div class="text-center mt-4">
+                    <button id="btnAbrirCaixa" class="btn btn-success btn-abrir-caixa">
+                        <i class="fas fa-cash-register me-2"></i>Abrir Caixa
+                    </button>
+                </div>
+                
+                <!-- Status e horário -->
+                <div class="hora-atual-container mt-4">
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <small class="text-muted d-block">Horário Atual do Sistema:</small>
+                            <strong id="horaAtual" class="fs-5 text-primary"></strong>
+                        </div>
+                        <div class="col-md-6 text-md-end">
+                            <small class="text-muted d-block">Status do Caixa:</small>
+                            <div class="status-caixa">
+                                <span class="badge bg-warning">Carregando...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+            <footer class="footer">
+                <div class="container-fluid d-flex justify-content-between">
+                    <div class="copyright">
+                        2024, made with <i class="fa fa-heart heart text-danger"></i> by
+                        <a href="http://www.themekita.com">ThemeKita</a>
+                    </div>
+                    <div>Distributed by <a target="_blank" href="https://themewagon.com/">ThemeWagon</a>.</div>
+                </div>
+            </footer>
+
+        </div> <!-- /.main-panel -->
+    </div> <!-- /.wrapper -->
+
+    <!-- Core JS -->
+    <script src="../../js/core/jquery-3.7.1.min.js"></script>
+    <script src="../../js/core/popper.min.js"></script>
+    <script src="../../js/core/bootstrap.min.js"></script>
+    <script src="../../js/plugin/jquery-scrollbar/jquery.scrollbar.min.js"></script>
+    <script src="../../js/plugin/jquery.sparkline/jquery.sparkline.min.js"></script>
+    <script src="../../js/plugin/datatables/datatables.min.js"></script>
+    <script src="../../js/plugin/bootstrap-notify/bootstrap-notify.min.js"></script>
+    <script src="../../js/plugin/sweetalert/sweetalert.min.js"></script>
+    <script src="../../js/kaiadmin.min.js"></script>
+
+    <!-- JS do Módulo de Caixa -->
+    <script src="../js/AbrirEFecharCaixa.js"></script>
+
+    <script>
+        // Debug rápido - verifica se o script carregou
+        console.log('CaixaManager disponível?', typeof CaixaManager);
+
+        // Força a inicialização se necessário
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM carregado - inicializando CaixaManager');
+            if (typeof CaixaManager !== 'undefined') {
+                window.caixaManager = new CaixaManager('abertura');
+            } else {
+                console.error('CaixaManager não carregou!');
+            }
+        });
+    </script>
+</body>
+</html>
