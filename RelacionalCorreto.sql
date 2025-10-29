@@ -84,8 +84,8 @@ create table tipo_alimento (
 );
 
 create table tipo_bazar (
-  tpb_id int not null,
-  tpb_desc varchar(45) not null,
+  tpb_id int DEFAULT nextval('seq_tipo_bazar'),
+  tpb_desc varchar(45) not null unique,
   primary key (tpb_id)
 );
 
@@ -138,13 +138,13 @@ create table login (
 );
 
 create table caixa (
-  idcaixa int not null,
+  idcaixa int DEFAULT nextval('seq_caixa'),
   data_abertura timestamp not null,
   valor_abertura double precision not null,
   login_abertura int not null,
-  data_fechamento timestamp not null,
-  valor_fechamento double precision not null,
-  login_fechamento int not null,
+  data_fechamento timestamp null,
+  valor_fechamento double precision null,
+  login_fechamento int null,
   primary key (idcaixa),
   constraint fk_caixa_login1
     foreign key (login_abertura)

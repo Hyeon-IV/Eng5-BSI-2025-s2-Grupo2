@@ -15,40 +15,79 @@ public class CaixaControl {
 
     @GetMapping("/abrirCaixa")
     public String abrirCaixaPage() {
-        return "Pages/abrirCaixa"; // Apenas UMA vez "Pages"
+        return "abrirCaixa"; // Apenas UMA vez "Pages"
+    }
+
+    @GetMapping("/fecharCaixa")
+    public String fecharCaixaPage() {
+        return "fecharCaixa"; // Apenas UMA vez "Pages"
     }
 
     @PostMapping("/abrir")
     public ResponseEntity<Object> abrirCaixa(@RequestBody CaixaDTO caixaDTO) {
-        // Extrai os dados do DTO
+        System.out.println("=== TENTATIVA DE ABRIR CAIXA ===");
+        System.out.println("Dados recebidos: " + caixaDTO.getCodigo() + ", " + caixaDTO.getValorAbertura());
+
+        // Validação dos dados
+        if (caixaDTO.getCodigo() <= 0) {
+            System.out.println("ERRO: Código do voluntário inválido");
+            return ResponseEntity.badRequest().body(new Erro("Código do voluntário inválido."));
+        }
+
+        if (caixaDTO.getValorAbertura() <= 0) {
+            System.out.println("ERRO: Valor de abertura inválido");
+            return ResponseEntity.badRequest().body(new Erro("Valor de abertura deve ser maior que zero."));
+        }
+
         int idVoluntario = caixaDTO.getCodigo();
         double valorAbertura = caixaDTO.getValorAbertura();
 
-        if (idVoluntario != 0) {
-            CaixaModel caixa = new CaixaModel();
-            var dao = caixa.getCaixaDAO();
+        CaixaModel caixa = new CaixaModel();
+        var dao = caixa.getCaixaDAO();
 
-            if (!dao.caixaAberto(Singleton.Retorna())) {
+        try {
+            System.out.println("Verificando se caixa está aberto...");
+            boolean caixaAberto = dao.caixaAberto(Singleton.Retorna());
+            System.out.println("Caixa aberto? " + caixaAberto);
+
+            if (!caixaAberto) {
+                System.out.println("Iniciando transação...");
                 if (!Singleton.Retorna().StartTransaction()) {
-                    return ResponseEntity.status(500).body(new Erro(Singleton.Retorna().getMensagemErro()));
+                    String erro = Singleton.Retorna().getMensagemErro();
+                    System.out.println("ERRO na transação: " + erro);
+                    return ResponseEntity.status(500).body(new Erro("Erro ao iniciar transação: " + erro));
                 }
 
+                System.out.println("Criando objeto de abertura...");
                 CaixaModel caixaAbertura = CaixaModel.criarAbertura(idVoluntario, valorAbertura);
+                System.out.println("Abrindo caixa no banco...");
+
                 int resultado = dao.abrirCaixaBanco(caixaAbertura, Singleton.Retorna());
+                System.out.println("Resultado da abertura: " + resultado);
 
                 if (resultado == 1) {
+                    System.out.println("Commitando transação...");
                     Singleton.Retorna().Commit();
+
+                    System.out.println("Buscando último caixa...");
                     CaixaModel ultimo = dao.buscarUltimoCaixa(Singleton.Retorna());
+                    System.out.println("Último caixa encontrado: " + (ultimo != null ? ultimo.getIdCaixa() : "null"));
+
                     return ResponseEntity.ok(new CaixaDTO(ultimo, 1, "Caixa aberto com sucesso!"));
                 } else {
+                    System.out.println("Rollback...");
                     Singleton.Retorna().Rollback();
-                    return ResponseEntity.badRequest().body(new Erro("Erro ao abrir o caixa."));
+                    return ResponseEntity.badRequest().body(new Erro("Erro ao abrir o caixa no banco."));
                 }
             } else {
+                System.out.println("Caixa já está aberto");
                 return ResponseEntity.badRequest().body(new Erro("Já existe um caixa aberto."));
             }
-        } else {
-            return ResponseEntity.badRequest().body(new Erro("Nenhum voluntário logado."));
+        } catch (Exception e) {
+            System.out.println("EXCEÇÃO: " + e.getMessage());
+            e.printStackTrace();
+            Singleton.Retorna().Rollback();
+            return ResponseEntity.status(500).body(new Erro("Erro interno: " + e.getMessage()));
         }
     }
 

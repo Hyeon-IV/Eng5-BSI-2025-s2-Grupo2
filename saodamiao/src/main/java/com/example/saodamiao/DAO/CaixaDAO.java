@@ -14,13 +14,24 @@ public class CaixaDAO implements IDAO<CaixaModel> {
 
     @Override
     public boolean gravar(CaixaModel entidade, Conexao conexao) {
-        String sql = """
-                INSERT INTO caixa (data_abertura, valor_abertura, login_abertura)
-                VALUES (NOW(), #1, #2)
-                """;
-        sql = sql.replace("#1", String.valueOf(entidade.getValorAbertura()));
-        sql = sql.replace("#2", String.valueOf(entidade.getLoginAbertura()));
-        return conexao.manipular(sql);
+        try {
+            String sql = """
+            INSERT INTO caixa (data_abertura, valor_abertura, login_abertura)
+            VALUES (NOW(), #1, #2)
+            """;
+            sql = sql.replace("#1", String.valueOf(entidade.getValorAbertura()));
+            sql = sql.replace("#2", String.valueOf(entidade.getLoginAbertura()));
+
+            System.out.println("SQL executado: " + sql);
+            boolean resultado = conexao.manipular(sql);
+            System.out.println("Resultado do INSERT: " + resultado);
+
+            return resultado;
+        } catch (Exception e) {
+            System.out.println("ERRO no gravar: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
     }
 
     @Override

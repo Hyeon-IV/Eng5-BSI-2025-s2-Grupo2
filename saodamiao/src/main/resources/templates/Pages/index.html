@@ -43,6 +43,8 @@
     <link rel="stylesheet" href="../css/plugins.min.css" />
     <link rel="stylesheet" href="../css/kaiadmin.min.css" />
     <link rel="stylesheet" href="../css/demo.css" />
+    <link rel="stylesheet" href="../css/TipoBazar.css">
+    <link rel="stylesheet" href="../css/caixa.css">
 
     <style>
         html, body { height: 100%; margin: 0; padding: 0; background-color: #f7f9fc; }
@@ -312,8 +314,8 @@
                         <div class="collapse" id="bazar">
                             <ul class="nav nav-collapse">
                                 <li><a href="bazar/vendas/efetuar.html"><i class="fas fa-cash-register me-2"></i><span class="sub-item">Efetuar Venda</span></a></li>
-                                <li><a href="bazar/caixa/abrir.html"><i class="fas fa-money-bill-wave me-2"></i><span class="sub-item">Abrir Caixa</span></a></li>
-                                <li><a href="bazar/caixa/fechar.html"><i class="fas fa-lock me-2"></i><span class="sub-item">Fechar Caixa</span></a></li>
+                                <li><a href="#" data-modulo="caixa" data-acao="abrir"><i class="fas fa-cash-register me-2"></i><span class="sub-item">Abrir Caixa</span></a></li>
+                                <li><a href="#" data-modulo="caixa" data-acao="fechar"><i class="fas fa-lock me-2"></i><span class="sub-item">Fechar Caixa</span></a></li>
 
                                 <li>
                                     <a data-bs-toggle="collapse" href="#bazar-clientes">
@@ -337,10 +339,10 @@
                                     </a>
                                     <div class="collapse" id="bazar-tipo">
                                         <ul class="nav nav-collapse subnav">
-                                            <li><a href="bazar/tipo/create.html"><span class="sub-item">Cadastrar</span></a></li>
-                                            <li><a href="bazar/tipo/list.html"><span class="sub-item">Listar / Consultar</span></a></li>
-                                            <li><a href="bazar/tipo/edit.html"><span class="sub-item">Editar</span></a></li>
-                                            <li><a href="bazar/tipo/delete.html"><span class="sub-item">Excluir</span></a></li>
+                                            <li><a href="#" data-modulo="tipo-bazar" data-acao="cadastrar"><span class="sub-item">Cadastrar</span></a></li>
+                                            <li><a href="#" data-modulo="tipo-bazar" data-acao="listar"><span class="sub-item">Listar / Consultar</span></a></li>
+                                            <li><a href="#" data-modulo="tipo-bazar" data-acao="editar"><span class="sub-item">Editar</span></a></li>
+                                            <li><a href="#" data-modulo="tipo-bazar" data-acao="excluir"><span class="sub-item">Excluir</span></a></li>
                                         </ul>
                                     </div>
                                 </li>
@@ -469,8 +471,10 @@
 <script src="../js/kaiadmin.min.js"></script>
 
 <!-- Seu JS externo que injeta o formulário -->
+    <script src="../js/TipoBazarLoader.js"></script>
     <script src="../js/Clientes.js" defer></script>
     <script defer src="../js/Alimento.js" ></script>
     <script defer src="../js/AlimentoConsulta.js" ></script>
+    <script src="../js/CaixaLoader.js"></script>
 </body>
 </html>
